@@ -96,7 +96,7 @@ namespace ThreadSafeConsole
             WriteLine((IEnumerable<TSCString>)enumeration);
         }
 
-        public static string ReadLine()
+        public static string ReadLine(int maxLength = 0)
         {
             lock (_lockObject)
             {
@@ -119,12 +119,15 @@ namespace ThreadSafeConsole
                 {
                     if (!char.IsControl(keyInfo.KeyChar))
                     {
-                        int i = _buffer.Length - _bufferCursorPos;
-                        Console.Write(keyInfo.KeyChar + _buffer.ToString(_bufferCursorPos, i));
-                        MoveCursor(i * -1);
+                        if (maxLength == 0 || _buffer.Length < maxLength)
+                        {
+                            int i = _buffer.Length - _bufferCursorPos;
+                            Console.Write(keyInfo.KeyChar + _buffer.ToString(_bufferCursorPos, i));
+                            MoveCursor(i * -1);
 
-                        _buffer.Insert(_bufferCursorPos, keyInfo.KeyChar.ToString(CultureInfo.InvariantCulture));
-                        _bufferCursorPos++;
+                            _buffer.Insert(_bufferCursorPos, keyInfo.KeyChar.ToString(CultureInfo.InvariantCulture));
+                            _bufferCursorPos++;
+                        }
                     }
                     else
                     {
