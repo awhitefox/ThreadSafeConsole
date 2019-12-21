@@ -117,7 +117,6 @@ namespace ThreadSafeConsole
                 ConsoleKeyInfo keyInfo = Console.ReadKey(true);
                 lock (_lockObject)
                 {
-                    // Char is not control (Default case)
                     if (!char.IsControl(keyInfo.KeyChar))
                     {
                         int i = _buffer.Length - _bufferCursorPos;
@@ -126,74 +125,74 @@ namespace ThreadSafeConsole
 
                         _buffer.Insert(_bufferCursorPos, keyInfo.KeyChar.ToString(CultureInfo.InvariantCulture));
                         _bufferCursorPos++;
-                        continue;
                     }
-
-                    // If char is control
-                    switch (keyInfo.Key)
+                    else
                     {
-                        // [Backspace] Remove symbol before cursor
-                        case ConsoleKey.Backspace:
-                            if (_bufferCursorPos != 0)
-                            {
-                                MoveCursor(-1);
-                                int i = _buffer.Length - _bufferCursorPos;
-                                Console.Write(_buffer.ToString(_bufferCursorPos, i) + ' ');
-                                MoveCursor(i * -1 - 1);
+                        switch (keyInfo.Key)
+                        {
+                            // [Backspace] Remove symbol before cursor
+                            case ConsoleKey.Backspace:
+                                if (_bufferCursorPos != 0)
+                                {
+                                    MoveCursor(-1);
+                                    int i = _buffer.Length - _bufferCursorPos;
+                                    Console.Write(_buffer.ToString(_bufferCursorPos, i) + ' ');
+                                    MoveCursor(i * -1 - 1);
 
-                                _buffer.Remove(_bufferCursorPos - 1, 1);
-                                _bufferCursorPos--;
-                            }
-                            continue;
+                                    _buffer.Remove(_bufferCursorPos - 1, 1);
+                                    _bufferCursorPos--;
+                                }
+                                continue;
 
-                        // [Del] Remove symbol after cursor
-                        case ConsoleKey.Delete:
-                            if (_bufferCursorPos != _buffer.Length)
-                            {
-                                int i = _buffer.Length - _bufferCursorPos;
-                                Console.Write(_buffer.ToString(_bufferCursorPos + 1, i - 1) + ' ');
-                                MoveCursor(i * -1);
+                            // [Del] Remove symbol after cursor
+                            case ConsoleKey.Delete:
+                                if (_bufferCursorPos != _buffer.Length)
+                                {
+                                    int i = _buffer.Length - _bufferCursorPos;
+                                    Console.Write(_buffer.ToString(_bufferCursorPos + 1, i - 1) + ' ');
+                                    MoveCursor(i * -1);
 
-                                _buffer.Remove(_bufferCursorPos, 1);
-                            }
-                            continue;
+                                    _buffer.Remove(_bufferCursorPos, 1);
+                                }
+                                continue;
 
-                        // [Enter] Clear buffer and return string
-                        case ConsoleKey.Enter:
-                            if (_buffer.Length != 0)
-                            {
-                                // Clear buffer on screen
-                                MoveCursor((_prompt.Length + _bufferCursorPos) * -1);
-                                int i = _prompt.Length + _buffer.Length;
-                                Console.Write(new string(' ', i));
-                                MoveCursor(i * -1);
+                            // [Enter] Clear buffer and return string
+                            case ConsoleKey.Enter:
+                                if (_buffer.Length != 0)
+                                {
+                                    // Clear buffer on screen
+                                    MoveCursor((_prompt.Length + _bufferCursorPos) * -1);
+                                    int i = _prompt.Length + _buffer.Length;
+                                    Console.Write(new string(' ', i));
+                                    MoveCursor(i * -1);
 
-                                string result = _buffer.ToString();
-                                _isReading = false;
-                                _buffer.Clear();
-                                _bufferCursorPos = 0;
+                                    string result = _buffer.ToString();
+                                    _isReading = false;
+                                    _buffer.Clear();
+                                    _bufferCursorPos = 0;
 
-                                return result;
-                            }
-                            continue;
+                                    return result;
+                                }
+                                continue;
 
-                        // [Left Arrow] Move cursor left
-                        case ConsoleKey.LeftArrow:
-                            if (_bufferCursorPos != 0)
-                            {
-                                MoveCursor(-1);
-                                _bufferCursorPos--;
-                            }
-                            continue;
+                            // [Left Arrow] Move cursor left
+                            case ConsoleKey.LeftArrow:
+                                if (_bufferCursorPos != 0)
+                                {
+                                    MoveCursor(-1);
+                                    _bufferCursorPos--;
+                                }
+                                continue;
 
-                        // [Right Arrow] Move cursor right
-                        case ConsoleKey.RightArrow:
-                            if (_bufferCursorPos != _buffer.Length)
-                            {
-                                MoveCursor(1);
-                                _bufferCursorPos++;
-                            }
-                            continue;
+                            // [Right Arrow] Move cursor right
+                            case ConsoleKey.RightArrow:
+                                if (_bufferCursorPos != _buffer.Length)
+                                {
+                                    MoveCursor(1);
+                                    _bufferCursorPos++;
+                                }
+                                continue;
+                        }
                     }
                 }
             }
