@@ -60,7 +60,7 @@ namespace ThreadSafeConsole
 
             lock (_lockObject)
             {
-                EraseBuffer();
+                GoToBufferBeginning();
                 Console.Write(str);
                 RestoreBuffer();
             }
@@ -75,7 +75,7 @@ namespace ThreadSafeConsole
             {
                 ConsoleColor saveForeground = Console.ForegroundColor;
                 ConsoleColor saveBackground = Console.BackgroundColor;
-                EraseBuffer();
+                GoToBufferBeginning();
                 foreach (var elem in enumeration)
                 {
                     if (!string.IsNullOrEmpty(elem.Data))
@@ -100,18 +100,14 @@ namespace ThreadSafeConsole
         {
             lock (_lockObject)
             {
-                // Check if already reading
                 if (_isReading)
                     throw new InvalidOperationException("Some thread is already reading.");
 
-                // Change private vars
                 _isReading = true;
                 _bufferCursorPos = 0;
-
                 Console.Write(_prompt);
             }
 
-            // Main loop
             while (true)
             {
                 ConsoleKeyInfo keyInfo = Console.ReadKey(true);
@@ -163,8 +159,8 @@ namespace ThreadSafeConsole
                             case ConsoleKey.Enter:
                                 if (_buffer.Length != 0)
                                 {
-                                    // Clear buffer on screen
-                                    MoveCursor((_prompt.Length + _bufferCursorPos) * -1);
+                                    GoToBufferBeginning();
+                                    
                                     int i = _prompt.Length + _buffer.Length;
                                     Console.Write(new string(' ', i));
                                     MoveCursor(i * -1);
@@ -203,7 +199,7 @@ namespace ThreadSafeConsole
 
         /* Private Helpers */
         
-        private static void EraseBuffer()
+        private static void GoToBufferBeginning()
         {
             if (_isReading)
             {

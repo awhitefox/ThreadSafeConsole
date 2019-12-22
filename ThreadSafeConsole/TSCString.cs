@@ -11,6 +11,7 @@ namespace ThreadSafeConsole
         public ConsoleColor? Backgroung { get; set; }
 
         /* Constructors */
+
         public TSCString() { }
         public TSCString(string data) => Data = data;
         public TSCString(string data, ConsoleColor fg) : this(data) => Foreground = fg;
